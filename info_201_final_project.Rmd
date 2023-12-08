@@ -1,0 +1,507 @@
+---
+title: "Group_Project"
+author: "Trisha, Kathie, E-anna"
+date: "2023-12-05"
+output: html_document
+---
+### library 
+```{r}
+library(readr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+```
+
+### load data sets 
+```{r}
+
+list.files("data")
+
+degrees_awarded_by_identity <- read.csv("data/PCHEES_Dashboard_-_Degrees_Awarded_by identity.csv") %>%
+  rename(Academic_Year = "AcademicYear", Student_Type = "Student.Type", 
+         Demographic_Group = "DemographicGroup", 
+         Demographic_Value = "DemographicValue", 
+         Demographic_Subgroup = "DemographicSubgroup", 
+         Demographic_Subgroup_Value = "DemographicSubgroupValue",
+         Number_of_Degrees = "Number.of.Degrees", 
+         Percent_of_Group = "pctOfGroup", 
+         Percent_of_Subgroup = "pctOfSubgroup") 
+
+degrees_by_major <- read.csv("data/PCHEES_Dashboard_-_Degrees_by_Major.csv") %>%
+  rename(Academic_Year = "AcademicYear", Award_Level = "AwardLevel") %>%
+  select(Academic_Year, Institution, Award_Level, TwoDigitCIPDescription, 
+         TotalDegrees, STEM)
+```
+### graph statewide STEM degrees granted in general
+```{r}
+degrees_by_major_v1 <- degrees_by_major %>%
+  select(Academic_Year, Institution, Award_Level, STEM, TotalDegrees) %>%
+  group_by(Academic_Year, Institution) %>%
+  summarize(Graduate_STEM = sum(TotalDegrees[Award_Level == "Graduate" & STEM]),
+            Graduate_NonSTEM = sum(TotalDegrees[Award_Level == "Graduate" & !STEM]),
+            Undergraduate_STEM = sum(TotalDegrees[Award_Level == "Undergraduate" & STEM]),
+            Undergraduate_NonSTEM = sum(TotalDegrees[Award_Level == "Undergraduate" & !STEM])) %>%
+  mutate(Academic_Start_Year = as.integer(substring(Academic_Year, 1, 4)))
+  
+degrees_by_major_statewide <- degrees_by_major_v1 %>%
+  ungroup() %>%
+  filter(Institution == "Statewide")
+# sub string extracts the first four numbers of each unit in academic year
+
+ggplot(degrees_by_major_statewide, aes(x = Academic_Start_Year)) +
+  geom_line(aes(y = Graduate_STEM, color = "Graduate_STEM")) +
+  geom_line(aes(y = Graduate_NonSTEM, color = "Graduate_NonSTEM")) +
+  geom_line(aes(y = Undergraduate_STEM, color = "Undergraduate_STEM")) +
+  geom_line(aes(y = Undergraduate_NonSTEM, color = "Undergraduate_NonSTEM")) +
+  labs(title = "Degrees Granted in Washington State",
+    x = "Academic Year", y = "Number of Degrees Granted", color = "Major Type")
+```
+
+#### Undergrad STEM Degrees by University
+```{r}
+uni_undergrad_STEM <- degrees_by_major_v1 %>%
+  filter(Institution != "Statewide") %>%
+  group_by(Institution) %>%
+  select(Academic_Year, Institution, Undergraduate_STEM, Academic_Start_Year)
+
+ggplot(uni_undergrad_STEM, aes(x = Academic_Start_Year, y = Undergraduate_STEM,
+                               color = Institution)) +
+  geom_line() +
+  labs(title = "Undergraduate STEM Degrees Granted", x = "Academic Year",
+       y = "Number of Degrees Granted", color = "University")
+```
+
+#### Undergrad NonSTEM Degrees by University
+```{r}
+uni_undergrad_NonSTEM <- degrees_by_major_v1 %>%
+  filter(Institution != "Statewide") %>%
+  group_by(Institution) %>%
+  select(Academic_Year, Institution, Undergraduate_NonSTEM, Academic_Start_Year)
+
+ggplot(uni_undergrad_NonSTEM, aes(x = Academic_Start_Year, y = Undergraduate_NonSTEM,
+                               color = Institution)) +
+  geom_line() +
+  labs(title = "Undergraduate Non-STEM Degrees Granted", x = "Academic Year",
+       y = "Number of Degrees Granted", color = "University")
+```
+
+
+#### Graduate STEM Degrees by University
+```{r}
+uni_grad_STEM <- degrees_by_major_v1 %>%
+  filter(Institution != "Statewide") %>%
+  group_by(Institution) %>%
+  select(Academic_Year, Institution, Graduate_STEM, Academic_Start_Year)
+
+ggplot(uni_grad_STEM, aes(x = Academic_Start_Year, y = Graduate_STEM,
+                               color = Institution)) +
+  geom_line() +
+  labs(title = "Graduate STEM Degrees Granted", x = "Academic Year",
+       y = "Number of Degrees Granted", color = "University")
+```
+
+
+#### Graduate Non STEM Degrees by University
+```{r}
+uni_grad_NonSTEM <- degrees_by_major_v1 %>%
+  filter(Institution != "Statewide") %>%
+  group_by(Institution) %>%
+  select(Academic_Year, Institution, Graduate_NonSTEM, Academic_Start_Year)
+
+ggplot(uni_grad_NonSTEM, aes(x = Academic_Start_Year, y = Graduate_NonSTEM,
+                               color = Institution)) +
+  geom_line() +
+  labs(title = "Graduate Non-STEM Degrees Granted", x = "Academic Year",
+       y = "Number of Degrees Granted", color = "University")
+```
+
+#### major degrees granted by race/ethnicity 
+```{r}
+degrees_by_identity_clean <- degrees_awarded_by_identity %>%
+  filter(Demographic_Group == "STEM Status" & Demographic_Subgroup == "Race/Ethnicity") %>%
+  mutate(Academic_Start_Year = as.integer(substring(Academic_Year, 1, 4))) %>%
+  select(Academic_Year, Academic_Start_Year, Institution, Student_Type, 
+         Demographic_Value, Demographic_Subgroup_Value, Number_of_Degrees,
+         Percent_of_Group, Percent_of_Subgroup)
+```
+
+#### Statewide Degrees overtime by Race and Ethnicity
+```{r}
+All_STEM_Race <- degrees_by_identity_clean %>%
+  filter(Demographic_Value == "STEM") %>%
+  filter(Demographic_Subgroup_Value == "White"| 
+         Demographic_Subgroup_Value == "Black"|
+         Demographic_Subgroup_Value == "Asian"| 
+         Demographic_Subgroup_Value == "Asian/Native Hawaiian or Other Pacific Islander"|
+         Demographic_Subgroup_Value == "Multi Racial"|
+         Demographic_Subgroup_Value == "Hispanic"|
+         Demographic_Subgroup_Value == "Unknown")
+
+All_NonSTEM_Race <- degrees_by_identity_clean %>%
+  filter(Demographic_Value == "Not STEM") %>%
+  filter(Demographic_Subgroup_Value == "White"| 
+         Demographic_Subgroup_Value == "Black"|
+         Demographic_Subgroup_Value == "Asian"| 
+         Demographic_Subgroup_Value == "Asian/Native Hawaiian or Other Pacific Islander"|
+         Demographic_Subgroup_Value == "Multi Racial"|
+         Demographic_Subgroup_Value == "Hispanic"|
+         Demographic_Subgroup_Value == "Unknown")
+
+Black_STEM <- All_STEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "Black") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(black_nodg = "Number_of_Degrees_Graduate", 
+         black_pgg = "Percent_of_Group_Graduate",
+         black_nodug = "Number_of_Degrees_Undergraduate", 
+         black_pgug = "Percent_of_Group_Undergraduate")
+  
+Black_NonSTEM <- All_NonSTEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "Black") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(black_nodg = "Number_of_Degrees_Graduate", 
+         black_pgg = "Percent_of_Group_Graduate",
+         black_nodug = "Number_of_Degrees_Undergraduate", 
+         black_pgug = "Percent_of_Group_Undergraduate")
+
+White_STEM <- All_STEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "White") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(white_nodg = "Number_of_Degrees_Graduate", 
+         white_pgg = "Percent_of_Group_Graduate",
+         white_nodug = "Number_of_Degrees_Undergraduate", 
+         white_pgug = "Percent_of_Group_Undergraduate")
+
+White_NonSTEM <- All_NonSTEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "White") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(white_nodg = "Number_of_Degrees_Graduate", 
+         white_pgg = "Percent_of_Group_Graduate",
+         white_nodug = "Number_of_Degrees_Undergraduate", 
+         white_pgug = "Percent_of_Group_Undergraduate")
+
+
+AAPI_STEM <- All_STEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "Asian/Native Hawaiian or Other Pacific Islander") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(aapi_nodg = "Number_of_Degrees_Graduate", 
+         aapi_pgg = "Percent_of_Group_Graduate",
+         aapi_nodug = "Number_of_Degrees_Undergraduate", 
+         aapi_pgug = "Percent_of_Group_Undergraduate")
+
+AAPI_NonSTEM <- All_NonSTEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "Asian/Native Hawaiian or Other Pacific Islander") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(aapi_nodg = "Number_of_Degrees_Graduate", 
+         aapi_pgg = "Percent_of_Group_Graduate",
+         aapi_nodug = "Number_of_Degrees_Undergraduate", 
+         aapi_pgug = "Percent_of_Group_Undergraduate")
+
+Multi_STEM <- All_STEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "Multi Racial") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(multi_nodg = "Number_of_Degrees_Graduate", 
+         multi_pgg = "Percent_of_Group_Graduate",
+         multi_nodug = "Number_of_Degrees_Undergraduate", 
+         multi_pgug = "Percent_of_Group_Undergraduate")
+
+Multi_NonSTEM <- All_NonSTEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "Multi Racial") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(multi_nodg = "Number_of_Degrees_Graduate", 
+         multi_pgg = "Percent_of_Group_Graduate",
+         multi_nodug = "Number_of_Degrees_Undergraduate", 
+         multi_pgug = "Percent_of_Group_Undergraduate")
+
+Hispanic_STEM <- All_STEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "Hispanic") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(hisp_nodg = "Number_of_Degrees_Graduate", 
+         hisp_pgg = "Percent_of_Group_Graduate",
+         hisp_nodug = "Number_of_Degrees_Undergraduate", 
+         hisp_pgug = "Percent_of_Group_Undergraduate")
+
+Hispanic_NonSTEM <- All_NonSTEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "Hispanic") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(hisp_nodg = "Number_of_Degrees_Graduate", 
+         hisp_pgg = "Percent_of_Group_Graduate",
+         hisp_nodug = "Number_of_Degrees_Undergraduate", 
+         hisp_pgug = "Percent_of_Group_Undergraduate")
+
+Unknown_STEM <- All_STEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "Unknown") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(uk_nodg = "Number_of_Degrees_Graduate", 
+         uk_pgg = "Percent_of_Group_Graduate",
+         uk_nodug = "Number_of_Degrees_Undergraduate", 
+         uk_pgug = "Percent_of_Group_Undergraduate")
+
+Unknown_NonSTEM  <- All_NonSTEM_Race %>% 
+  filter(Demographic_Subgroup_Value == "Unknown") %>%
+  select(Academic_Start_Year, Institution, Number_of_Degrees, Percent_of_Group, 
+         Demographic_Subgroup_Value, Student_Type) %>%
+  pivot_wider(id_cols = c(Academic_Start_Year, Institution, 
+                          Demographic_Subgroup_Value),
+              names_from = Student_Type,
+              values_from = c(Number_of_Degrees, Percent_of_Group)) %>%
+  rename(uk_nodg = "Number_of_Degrees_Graduate", 
+         uk_pgg = "Percent_of_Group_Graduate",
+         uk_nodug = "Number_of_Degrees_Undergraduate", 
+         uk_pgug = "Percent_of_Group_Undergraduate")
+```
+
+#### Filter Statewide 
+```{r}
+Black_STEM_statewide <- Black_STEM %>%
+  filter(Institution == "Statewide")
+  
+Black_NonSTEM_statewide <- Black_NonSTEM %>%
+  filter(Institution == "Statewide")
+
+White_STEM_statewide <- White_STEM %>%
+  filter(Institution == "Statewide")
+
+White_NonSTEM_statewide <- White_NonSTEM %>%
+  filter(Institution == "Statewide")
+
+
+AAPI_STEM_statewide <- AAPI_STEM %>%
+  filter(Institution == "Statewide")
+
+AAPI_NonSTEM_statewide <- AAPI_NonSTEM %>%
+  filter(Institution == "Statewide")
+
+Multi_STEM_statewide <- Multi_STEM %>%
+  filter(Institution == "Statewide")
+
+Multi_NonSTEM_statewide <- Multi_NonSTEM %>%
+  filter(Institution == "Statewide")
+
+Hispanic_STEM_statewide <- Hispanic_STEM %>%
+  filter(Institution == "Statewide")
+
+Hispanic_NonSTEM_statewide <- Hispanic_NonSTEM %>%
+  filter(Institution == "Statewide")
+
+Unknown_STEM_statewide <- Unknown_STEM %>%
+  filter(Institution == "Statewide")
+
+Unknown_NonSTEM_statewide <- Unknown_NonSTEM %>%
+  filter(Institution == "Statewide")
+```
+
+#### Students with STEM Degrees Statewide by Race/Ethnicity
+```{r}
+statewide_STEM_degrees_by_race <- degrees_by_major_statewide %>%
+  inner_join(Black_STEM_statewide, by = "Academic_Start_Year") %>%
+  inner_join(White_STEM_statewide, by = "Academic_Start_Year") %>%
+  inner_join(AAPI_STEM_statewide, by = "Academic_Start_Year") %>%
+  inner_join(Multi_STEM_statewide, by = "Academic_Start_Year") %>%
+  inner_join(Hispanic_STEM_statewide, by = "Academic_Start_Year") %>%
+  inner_join(Unknown_STEM_statewide, by = "Academic_Start_Year") %>%
+  select(Academic_Start_Year, Graduate_STEM, Undergraduate_STEM, black_nodg,
+         black_nodug, white_nodug, white_nodg, aapi_nodug, aapi_nodg,
+         multi_nodug, multi_nodg, hisp_nodug, hisp_nodg, uk_nodg, uk_nodug)
+
+ggplot(statewide_STEM_degrees_by_race, aes(x = Academic_Start_Year)) +
+  geom_line(aes(y = Undergraduate_STEM, color = "Overall")) +
+  geom_line(aes(y = black_nodug, color = "Black")) +
+  geom_line(aes(y = white_nodug, color = "White")) +
+  geom_line(aes(y = aapi_nodug, color = "AAPI")) +
+  geom_line(aes(y = multi_nodug, color = "Multi Racial")) +
+  geom_line(aes(y = hisp_nodug, color = "Hispanic")) +
+  geom_line(aes(y = uk_nodug, color = "Unknown")) +
+  labs(title = "Undergraduate Degrees Granted by Race/Ethnicity in Washington State",
+       x = "Academic Year",
+       y = "Number of Degrees Granted",
+       color = "Race/Ethnicity")
+```
+
+#### UW
+```{r}
+Black_STEM_UW <- Black_STEM %>%
+  filter(Institution == "University of Washington")
+  
+Black_NonSTEM_UW <- Black_NonSTEM %>%
+  filter(Institution == "University of Washington")
+
+White_STEM_UW <- White_STEM %>%
+  filter(Institution == "University of Washington")
+
+White_NonSTEM_UW <- White_NonSTEM %>%
+  filter(Institution == "University of Washington")
+
+
+AAPI_STEM_UW <- AAPI_STEM %>%
+  filter(Institution == "University of Washington")
+
+AAPI_NonSTEM_UW <- AAPI_NonSTEM %>%
+  filter(Institution == "University of Washington")
+
+Multi_STEM_UW <- Multi_STEM %>%
+  filter(Institution == "University of Washington")
+
+Multi_NonSTEM_UW <- Multi_NonSTEM %>%
+  filter(Institution == "University of Washington")
+
+Hispanic_STEM_UW <- Hispanic_STEM %>%
+  filter(Institution == "University of Washington")
+
+Hispanic_NonSTEM_UW <- Hispanic_NonSTEM %>%
+  filter(Institution == "University of Washington")
+
+Unknown_STEM_UW <- Unknown_STEM %>%
+  filter(Institution == "University of Washington")
+
+Unknown_NonSTEM_UW <- Unknown_NonSTEM %>%
+  filter(Institution == "University of Washington")
+
+UW_degrees_by_major <- degrees_by_major_v1 %>%
+  filter(Institution == "University of Washington")
+
+UW_STEM_degrees_by_race <- UW_degrees_by_major %>%
+  inner_join(Black_STEM_UW, by = "Academic_Start_Year") %>%
+  inner_join(White_STEM_UW, by = "Academic_Start_Year") %>%
+  inner_join(AAPI_STEM_UW, by = "Academic_Start_Year") %>%
+  inner_join(Multi_STEM_UW, by = "Academic_Start_Year") %>%
+  inner_join(Hispanic_STEM_UW, by = "Academic_Start_Year") %>%
+  inner_join(Unknown_STEM_UW, by = "Academic_Start_Year") %>%
+  select(Academic_Start_Year, Graduate_STEM, Undergraduate_STEM, black_nodg,
+         black_nodug, white_nodug, white_nodg, aapi_nodug, aapi_nodg,
+         multi_nodug, multi_nodg, hisp_nodug, hisp_nodg, uk_nodg, uk_nodug)
+
+ggplot(UW_STEM_degrees_by_race, aes(x = Academic_Start_Year)) +
+  geom_line(aes(y = black_nodug, color = "Black")) +
+  geom_line(aes(y = white_nodug, color = "White")) +
+  geom_line(aes(y = aapi_nodug, color = "AAPI")) +
+  geom_line(aes(y = multi_nodug, color = "Multi Racial")) +
+  geom_line(aes(y = hisp_nodug, color = "Hispanic")) +
+  geom_line(aes(y = uk_nodug, color = "Unknown")) +
+  labs(title = "Undergraduate STEM Degrees Granted by Race/Ethnicity at UW",
+       x = "Academic Year",
+       y = "Number of Degrees Granted",
+       color = "Race/Ethnicity")
+```
+
+#### WSU
+```{r}
+Black_STEM_WSU <- Black_STEM %>%
+  filter(Institution == "Washington State University")
+  
+Black_NonSTEM_WSU <- Black_NonSTEM %>%
+  filter(Institution == "Washington State University")
+
+White_STEM_WSU <- White_STEM %>%
+  filter(Institution == "Washington State University")
+
+White_NonSTEM_WSU <- White_NonSTEM %>%
+  filter(Institution == "Washington State University")
+
+
+AAPI_STEM_WSU <- AAPI_STEM %>%
+  filter(Institution == "Washington State University")
+
+AAPI_NonSTEM_WSU <- AAPI_NonSTEM %>%
+  filter(Institution == "Washington State University")
+
+Multi_STEM_WSU <- Multi_STEM %>%
+  filter(Institution == "Washington State University")
+
+Multi_NonSTEM_WSU <- Multi_NonSTEM %>%
+  filter(Institution == "Washington State University")
+
+Hispanic_STEM_WSU <- Hispanic_STEM %>%
+  filter(Institution == "Washington State University")
+
+Hispanic_NonSTEM_WSU <- Hispanic_NonSTEM %>%
+  filter(Institution == "Washington State University")
+
+Unknown_STEM_WSU <- Unknown_STEM %>%
+  filter(Institution == "Washington State University")
+
+Unknown_NonSTEM_WSU <- Unknown_NonSTEM %>%
+  filter(Institution == "Washington State University")
+
+WSU_degrees_by_major <- degrees_by_major_v1 %>%
+  filter(Institution == "Washington State University")
+
+WSU_STEM_degrees_by_race <- WSU_degrees_by_major %>%
+  inner_join(Black_STEM_WSU, by = "Academic_Start_Year") %>%
+  inner_join(White_STEM_WSU, by = "Academic_Start_Year") %>%
+  inner_join(AAPI_STEM_WSU, by = "Academic_Start_Year") %>%
+  inner_join(Multi_STEM_WSU, by = "Academic_Start_Year") %>%
+  inner_join(Hispanic_STEM_WSU, by = "Academic_Start_Year") %>%
+  inner_join(Unknown_STEM_WSU, by = "Academic_Start_Year") %>%
+  select(Academic_Start_Year, Graduate_STEM, Undergraduate_STEM, black_nodg,
+         black_nodug, white_nodug, white_nodg, aapi_nodug, aapi_nodg,
+         multi_nodug, multi_nodg, hisp_nodug, hisp_nodg, uk_nodg, uk_nodug)
+
+ggplot(WSU_STEM_degrees_by_race, aes(x = Academic_Start_Year)) +
+  geom_line(aes(y = black_nodug, color = "Black")) +
+  geom_line(aes(y = white_nodug, color = "White")) +
+  geom_line(aes(y = aapi_nodug, color = "AAPI")) +
+  geom_line(aes(y = multi_nodug, color = "Multi Racial")) +
+  geom_line(aes(y = hisp_nodug, color = "Hispanic")) +
+  geom_line(aes(y = uk_nodug, color = "Unknown")) +
+  labs(title = "Undergraduate STEM Degrees Granted by Race/Ethnicity at WSU",
+       x = "Academic Year",
+       y = "Number of Degrees Granted",
+       color = "Race/Ethnicity")
+```
