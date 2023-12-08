@@ -18,7 +18,6 @@ library(knitr)
 ```{r}
 
 list.files("data")
-
 degrees_awarded_by_identity <- read.csv("data/PCHEES_Dashboard_-_Degrees_Awarded_by identity.csv") %>%
   rename(Academic_Year = "AcademicYear", Student_Type = "Student.Type", 
          Demographic_Group = "DemographicGroup", 
