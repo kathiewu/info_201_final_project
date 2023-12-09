@@ -1,0 +1,416 @@
+---
+title: "Group_Project"
+author: "Trisha, Kathie, E-anna"
+date: "2023-12-05"
+output: html_document
+---
+```{r include=FALSE}
+library(readr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(dplyr)
+library(knitr)
+```
+
+### Gathering and Cleaning Datasets
+
+We are using 5 data sets for this project. We combined two in our first merged data set. One of these two data sets offered us total major demographics from 2007-2021. The other one offered Race/Ethnicity background data from 2007-2021 connection to their degree . Combining this data showed us how Race/Ethnicity correlates to STEM degrees granted. Our second combined data set shows UW degrees granted from 2012-2021 by Race/Ethnicity. We just had to combine this data from the three UW Campuses. 
+
+```{r include=FALSE}
+#### CLEANING DEGREES BY IDENTITY DATA
+degrees_by_identity_clean <- read.csv("PCHEES_Dashboard_-_Degrees_Awarded_by identity.csv") %>%
+  rename(Demographic_Group = "DemographicGroup",
+         Demographic_Subgroup = "DemographicSubgroup", 
+         Student_Type = "Student.Type",
+         Demographic_Value = "DemographicValue",
+         Demographic_Subgroup_Value = "DemographicSubgroupValue",
+         Number_of_Degrees = "Number.of.Degrees") %>%
+  filter(Demographic_Group == "STEM Status" & 
+           Demographic_Subgroup == "Race/Ethnicity") %>%
+  mutate(Academic_Start_Year = as.integer(substring(AcademicYear, 1, 4))) %>%
+  select(Academic_Start_Year, Institution, Student_Type, 
+         Demographic_Value, Demographic_Subgroup_Value, Number_of_Degrees) %>%
+  mutate(Degree_Type = ifelse(Demographic_Value == "STEM" & 
+                                Student_Type == "Graduate","Graduate_STEM", 
+                       ifelse(Demographic_Value == "STEM" & 
+                                Student_Type == "Undergraduate","Undergraduate_STEM",
+                       ifelse(Demographic_Value == "Not STEM" & 
+                                Student_Type == "Graduate", "Graduate_NonSTEM",
+                       "Undergraduate_NonSTEM")))) %>%
+  rename(Demographic = "Demographic_Subgroup_Value") %>%
+  select(Academic_Start_Year, Institution, Demographic, 
+         Number_of_Degrees, Degree_Type)
+
+#### CLEANING DEGREES BY MAJOR DATA
+degrees_by_major_clean <- read.csv("PCHEES_Dashboard_-_Degrees_by_Major.csv") %>%
+  rename(Academic_Year = "AcademicYear", Award_Level = "AwardLevel") %>%
+  select(Academic_Year, Institution, Award_Level, STEM, TotalDegrees) %>%
+  group_by(Academic_Year, Institution) %>%
+  summarize(Graduate_STEM = sum(TotalDegrees[Award_Level == "Graduate" & STEM]),
+            Graduate_NonSTEM = sum(TotalDegrees[Award_Level == "Graduate" & !STEM]),
+            Undergraduate_STEM = sum(TotalDegrees[Award_Level == "Undergraduate" & STEM]),
+            Undergraduate_NonSTEM = sum(TotalDegrees[Award_Level == "Undergraduate" & !STEM])) %>%
+  mutate(Academic_Start_Year = as.integer(substring(Academic_Year, 1, 4))) %>%
+  ungroup() %>%
+  pivot_longer(cols = c(Graduate_STEM, Graduate_NonSTEM, Undergraduate_STEM,
+                        Undergraduate_NonSTEM),
+               names_to = "Degree_Type", values_to = "Number_of_Degrees") %>%
+  mutate(Demographic = "Total") %>%
+  select(Academic_Start_Year, Institution, Degree_Type, Number_of_Degrees,
+         Demographic)
+
+#### FINAL CLEAN DATASET 
+merged_dataset <- full_join(degrees_by_major_clean, degrees_by_identity_clean,
+                            by = c("Institution", "Academic_Start_Year",
+                                   "Degree_Type","Demographic",
+                                   "Number_of_Degrees")) %>%
+  arrange(Academic_Start_Year, Institution)
+
+#### MERGED UW DATASET 
+UW_Seattle_population_data <- read.csv("Race &amp; Ethnicity by Share.csv") %>%
+  select(Year, IPEDS.Race, University, Completions) %>%
+  rename(Academic_Start_Year = "Year", Demographic1 = "IPEDS.Race",
+         Institution = "University", Number_of_All_Degrees = "Completions") %>%
+  mutate(Demographic = ifelse(Demographic1 == "Asian","Asian/Native Hawaiian or Other Pacific Islander", 
+                       ifelse(Demographic1 == "Black or African American","Black",
+                       ifelse(Demographic1 == "Hispanic or Latino", "Hispanic",
+                       ifelse(Demographic1 == "Two or More Races", "Multi Racial",
+                       ifelse(Demographic1 == "American Indian or Alaska Native",
+                              "American Indian or Alaska Native (AIAN)",
+                       ifelse(Demographic1 == "White", "White", "Other"))))))) %>%
+  select(Academic_Start_Year, Number_of_All_Degrees, Demographic) %>%
+  group_by(Academic_Start_Year, Demographic) %>%
+  summarize(Total_Degrees = sum(Number_of_All_Degrees)) %>%
+  ungroup() %>%
+  arrange(Academic_Start_Year)
+
+
+UW_Bothell_population_data <- read.csv("Graduation Rate by Race and Sex.csv") %>%
+  select(Year, IPEDS.Race, University, Number.Of.Finishers) %>%
+  rename(Academic_Start_Year = "Year", Demographic1 = "IPEDS.Race",
+         Institution = "University", Number_of_All_Degrees = "Number.Of.Finishers") %>%
+  mutate(Demographic = ifelse(Demographic1 == "Asian","Asian/Native Hawaiian or Other Pacific Islander", 
+                       ifelse(Demographic1 == "Black or African American","Black",
+                       ifelse(Demographic1 == "Hispanic or Latino", "Hispanic",
+                       ifelse(Demographic1 == "Two or More Races", "Multi Racial",
+                       ifelse(Demographic1 == "American Indian or Alaska Native",
+                              "American Indian or Alaska Native (AIAN)",
+                       ifelse(Demographic1 == "White", "White", "Other"))))))) %>%
+  select(Academic_Start_Year, Number_of_All_Degrees, Demographic) %>%
+  group_by(Academic_Start_Year, Demographic) %>%
+  summarize(Total_Degrees = sum(Number_of_All_Degrees)) %>%
+  ungroup() %>%
+  arrange(Academic_Start_Year)
+
+
+UW_Tacoma_population_data <- read.csv("Graduation Rate by Race and Sex 1.csv") %>%
+  select(Year, IPEDS.Race, University, Number.Of.Finishers) %>%
+  rename(Academic_Start_Year = "Year", Demographic1 = "IPEDS.Race",
+         Institution = "University", Number_of_All_Degrees = "Number.Of.Finishers") %>%
+  mutate(Demographic = ifelse(Demographic1 == "Asian","Asian/Native Hawaiian or Other Pacific Islander", 
+                       ifelse(Demographic1 == "Black or African American","Black",
+                       ifelse(Demographic1 == "Hispanic or Latino", "Hispanic",
+                       ifelse(Demographic1 == "Two or More Races", "Multi Racial",
+                       ifelse(Demographic1 == "American Indian or Alaska Native",
+                              "American Indian or Alaska Native (AIAN)",
+                       ifelse(Demographic1 == "White", "White", "Other"))))))) %>%
+  select(Academic_Start_Year, Number_of_All_Degrees, Demographic) %>%
+  group_by(Academic_Start_Year, Demographic) %>%
+  summarize(Total_Degrees = sum(Number_of_All_Degrees)) %>%
+  ungroup() %>%
+  arrange(Academic_Start_Year)
+
+
+#### Merged UW Population Data
+UW_population_data <- UW_Seattle_population_data %>%
+  left_join(UW_Tacoma_population_data, by = c("Academic_Start_Year", "Demographic")) %>%
+  left_join(UW_Bothell_population_data, by = c("Academic_Start_Year", "Demographic")) %>%
+  arrange(Academic_Start_Year) %>%
+  mutate(Total_Degrees = Total_Degrees.x + Total_Degrees.y +
+           Total_Degrees) %>%
+  select(Academic_Start_Year, Demographic, Total_Degrees) %>%
+  na.omit()
+  
+#### Final UW Data set with Merged Data
+UW_merged_data <- merged_dataset %>%
+  filter(Institution == "University of Washington") %>%
+  filter(Academic_Start_Year %in% 2012:2021) %>%
+  filter(Degree_Type == "Undergraduate_STEM" | Degree_Type == "Undergraduate_NonSTEM") %>%
+  left_join(UW_population_data, by = c("Academic_Start_Year", "Demographic"))
+#asked chatgpt why == wouldn't work and it said %in% is the right operator 
+```
+
+### Statewide Degree Types Granted 2007 - 2021
+
+We wanted to look at the overall degree trends in the State of Washington so that we could compare it to other demographics that completed STEM or Non-STEM degrees and see if those trends look different for different demographics. 
+
+```{r echo=FALSE}
+degrees_by_major_wide <- degrees_by_major_clean %>%
+  ungroup() %>%
+  pivot_wider(id_cols = c("Institution","Academic_Start_Year"),
+              names_from = "Degree_Type", values_from = "Number_of_Degrees")
+
+degrees_by_major_statewide <- degrees_by_major_wide %>%
+  filter(Institution == "Statewide")
+
+
+ggplot(degrees_by_major_statewide, aes(x = Academic_Start_Year)) +
+  geom_line(aes(y = Graduate_STEM, color = "Graduate_STEM")) +
+  geom_line(aes(y = Graduate_NonSTEM, color = "Graduate_NonSTEM")) +
+  geom_line(aes(y = Undergraduate_STEM, color = "Undergraduate_STEM")) +
+  geom_line(aes(y = Undergraduate_NonSTEM, color = "Undergraduate_NonSTEM")) +
+  labs(title = "Degrees Granted in Washington State",
+    x = "Academic Year", y = "Number of Degrees Granted", color = "Major Type")
+```
+
+We found that overall in Washington STEM degrees, both Graduate and Undergraduate, were increased and are going upward since 2007 in the amounts granted. Non-STEM degrees remained the same or have been on the decline since 2007. 
+
+#### Undergrad STEM Degrees by University
+
+Next, we wanted to see who the top degree granters were for STEM degrees were in Washington. We also wanted to see the trends of the STEM degrees these institutions were granting. 
+
+```{r echo=FALSE}
+undergrad_STEM_all_uni <- degrees_by_major_wide %>%
+  filter(Institution != "Statewide") %>%
+  group_by(Institution) %>%
+  select(Institution, Undergraduate_STEM, Academic_Start_Year)
+
+ggplot(undergrad_STEM_all_uni, aes(x = Academic_Start_Year, y = Undergraduate_STEM,
+                               color = Institution)) +
+  geom_line() +
+  labs(title = "Undergraduate STEM Degrees Granted", x = "Academic Year",
+       y = "Number of Degrees Granted", color = "University")
+```
+
+We saw that the top three STEM degree granters in Washington State were the University of Washington, Washington State University, and Western Washington University. Most of these university's increased the amount of STEM degrees granted since 2007. University of Washington and Washington State University saw the greatest increase in STEM degrees granted.
+
+#### Undergrad NonSTEM Degrees by University
+
+Since we were curious, we wanted to see if the increase of STEM degrees led to a decrease of Non-STEM degrees. 
+
+```{r echo=FALSE}
+undergrad_NonSTEM_by_uni <- degrees_by_major_wide %>%
+  filter(Institution != "Statewide") %>%
+  group_by(Institution) %>%
+  select(Institution, Undergraduate_NonSTEM, Academic_Start_Year)
+
+ggplot(undergrad_NonSTEM_by_uni, aes(x = Academic_Start_Year, y = Undergraduate_NonSTEM,
+                               color = Institution)) +
+  geom_line() +
+  labs(title = "Undergraduate Non-STEM Degrees Granted", x = "Academic Year",
+       y = "Number of Degrees Granted", color = "University")
+```
+
+In our findings we see that Non-STEM degrees have stayed about the same or slightly decreased over the last few years. 
+
+#### Graduate STEM Degrees by University
+
+We wanted to see if these trends held true for Graduate studies as well. 
+
+```{r echo=FALSE}
+grad_STEM_by_uni <- degrees_by_major_wide %>%
+  filter(Institution != "Statewide") %>%
+  group_by(Institution) %>%
+  select(Institution, Graduate_STEM, Academic_Start_Year)
+
+ggplot(grad_STEM_by_uni, aes(x = Academic_Start_Year, y = Graduate_STEM,
+                               color = Institution)) +
+  geom_line() +
+  labs(title = "Graduate STEM Degrees Granted", x = "Academic Year",
+       y = "Number of Degrees Granted", color = "University")
+```
+
+This graph shows a dramatic increase in the amount of Graduate STEM degrees granted for the University of Washington. All this data makes us think about how the University of Washington is a key player in STEM studies. They grant the most Undergraduate STEM and Non-STEM degrees out of these six universities, and have been increasing this amount dramatically. Having such a large program is why it is important that the Univerity of Washington's STEM program is diverse. 
+
+#### Graduate Non STEM Degrees by University
+
+Again, we wanted to see what these trends looked like for Non-STEM degrees as well. 
+
+```{r echo=FALSE}
+grad_NonSTEM_by_uni <- degrees_by_major_wide %>%
+  filter(Institution != "Statewide") %>%
+  select(Institution, Graduate_NonSTEM, Academic_Start_Year)
+
+ggplot(grad_NonSTEM_by_uni, aes(x = Academic_Start_Year, y = Graduate_NonSTEM,
+                               color = Institution)) +
+  geom_line() +
+  labs(title = "Graduate Non-STEM Degrees Granted", x = "Academic Year",
+       y = "Number of Degrees Granted", color = "University")
+```
+
+#### EWU Undergraduates STEM Degrees Granted
+
+Since Western Washington University is one of the top three STEM degree granters, we wanted to see what their diversity looks like. 
+
+```{r echo=FALSE}
+WWU_undergrad_STEM_by_race <- degrees_by_identity_clean %>%
+  filter(Institution == "Western Washington University") %>%
+  pivot_wider(id_cols = c("Institution","Academic_Start_Year", "Demographic"),
+              names_from = "Degree_Type", values_from = "Number_of_Degrees") %>%
+  select(Academic_Start_Year, Institution, Undergraduate_STEM, Demographic) %>%
+  na.omit()
+
+ ggplot(WWU_undergrad_STEM_by_race, aes(Academic_Start_Year, Undergraduate_STEM, 
+                                   color = Demographic)) +
+   geom_line() +
+   geom_point(size = 1) +
+   labs(title = "Undergraduate STEM Degrees Granted at WWU", x = "Year",
+        y = "Number of Degrees Granted", color = "Demographic")
+```
+
+We found that White students get significantly more degrees than all other students. This could possibly be because this accurately reflects the proportionate of White students at Western Washington University. Even though this may be true, White students seem to be getting more STEM degrees from WWU overtime while to amount other demographics are receiving has stayed relatively the same since 2007. 
+
+#### WWU Undergraduates Non-STEM Degrees Granted
+
+Interestingly, some of the demographics that have stayed same for getting STEM degrees have gotten more Non-STEM degrees over time. For example, in this graph, more Hispanic and Multi-Racial students received Undergraduate degrees in Non-STEM majors. 
+
+```{r echo=FALSE}
+WWU_undergrad_NonSTEM_by_race <- degrees_by_identity_clean %>%
+  filter(Institution == "Western Washington University") %>%
+  pivot_wider(id_cols = c("Institution","Academic_Start_Year", "Demographic"),
+              names_from = "Degree_Type", values_from = "Number_of_Degrees") %>%
+  select(Academic_Start_Year, Institution, Undergraduate_NonSTEM, Demographic) %>%
+  na.omit()
+
+ ggplot(WWU_undergrad_NonSTEM_by_race, aes(Academic_Start_Year, Undergraduate_NonSTEM, 
+                                   color = Demographic)) +
+   geom_line() +
+   geom_point(size = 1) +
+   labs(title = "Undergraduate Non-STEM Degrees Granted at WWU", x = "Year",
+        y = "Number of Degrees Granted", color = "Demographic")
+```
+
+#### WSU Undergraduates STEM Degrees Granted
+
+Washington State University grants the second most STEM and NON-STEM degrees so we wanted to explore how diverse their programs are as well. 
+
+```{r echo=FALSE}
+WSU_undergrad_STEM_by_race <- degrees_by_identity_clean %>%
+  filter(Institution == "Washington State University") %>%
+  pivot_wider(id_cols = c("Institution","Academic_Start_Year", "Demographic"),
+              names_from = "Degree_Type", values_from = "Number_of_Degrees") %>%
+  select(Academic_Start_Year, Institution, Undergraduate_STEM, Demographic) %>%
+  na.omit()
+
+ ggplot(WSU_undergrad_STEM_by_race, aes(Academic_Start_Year, Undergraduate_STEM, 
+                                   color = Demographic)) +
+   geom_line() +
+   geom_point(size = 1) +
+   labs(title = "Undergraduate STEM Degrees Granted at WSU", x = "Year",
+        y = "Number of Degrees Granted", color = "Demographic")
+```
+
+Here we see that there are significantly more White students receiving Undergraduate degrees in STEM at WSU than other demographics. This may be proportional to the amount of White students at WSU, though this is a large discrepancy for a large university. We also see that people of Asian/Native Hawaiian or Other Pacific Island backgrounds, Hispanic backgrounds, and Multi-Racial backgrounds have been increased in the amount of STEM degrees received. 
+
+#### WSU Undergraduates Non-STEM Degrees Granted
+
+In the figure below, we see that the number of White students getting STEM degrees has decreased over time while Hispanic and Multi Racial demographics have increased in numbers for Non-STEM degrees. We also see WSU having data for Native Americans for Non-STEM degrees while its missing for STEM degrees. 
+
+```{r echo=FALSE}
+WSU_undergrad_NonSTEM_by_race <- degrees_by_identity_clean %>%
+  filter(Institution == "Washington State University") %>%
+  pivot_wider(id_cols = c("Institution","Academic_Start_Year", "Demographic"),
+              names_from = "Degree_Type", values_from = "Number_of_Degrees") %>%
+  select(Academic_Start_Year, Institution, Undergraduate_NonSTEM, Demographic) %>%
+  na.omit()
+
+ ggplot(WSU_undergrad_NonSTEM_by_race, aes(Academic_Start_Year, Undergraduate_NonSTEM, 
+                                   color = Demographic)) +
+   geom_line() +
+   geom_point(size = 1) +
+   labs(title = "Undergraduate Non-STEM Degrees Granted at WSU", x = "Year",
+        y = "Number of Degrees Granted", color = "Demographic")
+```
+
+#### UW Undergraduates STEM Degrees Granted
+
+Lastly, the concentration of our study was UW Undergraduates, since they are the top STEM degree granter in this data set. This graph looks very different than the other two universities we have compared so far. 
+
+```{r echo=FALSE}
+UW_undergrad_STEM_by_race <- degrees_by_identity_clean %>%
+  filter(Institution == "University of Washington") %>%
+  pivot_wider(id_cols = c("Institution","Academic_Start_Year", "Demographic"),
+              names_from = "Degree_Type", values_from = "Number_of_Degrees") %>%
+  select(Academic_Start_Year, Institution, Undergraduate_STEM, Demographic) %>%
+  na.omit()
+
+ ggplot(UW_undergrad_STEM_by_race, aes(Academic_Start_Year, Undergraduate_STEM, 
+                                   color = Demographic)) +
+   geom_line() +
+   geom_point(size = 1) +
+   labs(title = "Undergraduate STEM Degrees Granted at UW", x = "Year",
+        y = "Number of Degrees Granted", color = "Demographic")
+```
+
+First, we see that White students are still at the top of this data set. Asian/Native Hawaiian or Other Pacific Islander students are higher up in comparison to White students in this data. We see that all demographics are increasing in the amount of STEM degrees granted other that white students in the last few years. Again, this may be proportionate and just represent the diverse population at the University of Washington. 
+
+#### UW Undergraduates Non-STEM Degrees Granted
+
+The Non-STEM degree graph remains pretty consistent with findings from other universities. The number of White students getting Non-STEM degrees have declined. The rest of the demographics have only seen slight changes, both inclining and declining. 
+
+```{r echo=FALSE}
+UW_undergrad_NonSTEM_by_race <- degrees_by_identity_clean %>%
+  filter(Institution == "University of Washington") %>%
+  pivot_wider(id_cols = c("Institution","Academic_Start_Year", "Demographic"),
+              names_from = "Degree_Type", values_from = "Number_of_Degrees") %>%
+  select(Academic_Start_Year, Institution, Undergraduate_NonSTEM, Demographic) %>%
+  na.omit()
+
+ ggplot(UW_undergrad_NonSTEM_by_race, aes(Academic_Start_Year, Undergraduate_NonSTEM, 
+                                   color = Demographic)) +
+   geom_line() +
+   geom_point(size = 1) +
+   labs(title = "Undergraduate Non-STEM Degrees Granted at UW", x = "Year",
+        y = "Number of Degrees Granted", color = "Demographic")
+```
+
+#### UW STEM Degrees Granted Compared to UW's Race/Ethnicy Numbers
+
+We wanted to answer the question about if the graphs above were representative of UW's population or not. 
+
+```{r echo=FALSE}
+UW_undergrad_merged_data_wide <- UW_merged_data %>%
+  pivot_wider(id_cols = c("Institution","Academic_Start_Year", "Demographic"
+                          , "Total_Degrees"),
+              names_from = "Degree_Type", values_from = "Number_of_Degrees") %>%
+  mutate(Undergraduate_STEM_comp = ifelse(!is.na(Undergraduate_STEM) & 
+                                            !is.na(Total_Degrees), 
+                                          Undergraduate_STEM / Total_Degrees, NA),
+    Undergraduate_NonSTEM_comp = ifelse(!is.na(Undergraduate_NonSTEM) & !is.na(Total_Degrees), 
+                                        Undergraduate_NonSTEM / Total_Degrees, NA)) %>%
+  na.omit()
+
+ggplot(UW_undergrad_merged_data_wide, aes(Academic_Start_Year, Undergraduate_STEM_comp, color = Demographic)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Percentage of Different Race/Ethnicity Populations 
+       Pursuing STEM Degrees at UW",
+       x = "Year", y = "Percentage of Demographic at UW")
+```
+
+This graph shows the percent (out of 1) that have received a STEM degree out of the number of people of that demographic that have received that year. These results were surprising. The percentage of Asian/Native Hawaiian or Other Pacific Islander students pursuing STEM degrees have increased by more than 20% since 2012. Although in other graphs it shows that many more White students purse STEM degrees, we can see that this is relative to the population at the University of Washington. 
+
+#### UW STEM Degrees Granted Compared to UW's Race/Ethnicy Numbers
+
+On the other hand, most demographic groups have seen less percentages getting Non-STEM degrees overall. 
+
+```{r echo=FALSE}
+UW_undergrad_merged_data_wide <- UW_merged_data %>%
+  pivot_wider(id_cols = c("Institution","Academic_Start_Year", "Demographic"
+                          , "Total_Degrees"),
+              names_from = "Degree_Type", values_from = "Number_of_Degrees") %>%
+  mutate(Undergraduate_STEM_comp = ifelse(!is.na(Undergraduate_STEM) & 
+                                            !is.na(Total_Degrees), 
+                                          Undergraduate_STEM / Total_Degrees, NA),
+    Undergraduate_NonSTEM_comp = ifelse(!is.na(Undergraduate_NonSTEM) & !is.na(Total_Degrees), 
+                                        Undergraduate_NonSTEM / Total_Degrees, NA)) %>%
+  na.omit()
+
+ggplot(UW_undergrad_merged_data_wide, aes(Academic_Start_Year, Undergraduate_NonSTEM_comp, color = Demographic)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Percentage of Different Race/Ethnicity Populations 
+       Pursuing Non-STEM Degrees at UW",
+       x = "Year", y = "Percentage of Demographic at UW")
+```
