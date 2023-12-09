@@ -1,0 +1,417 @@
+---
+title: "Final Project Report"
+author: "Kathie Wu"
+date: "2023-12-08"
+output: html_document
+---
+
+### **Introduction (2-3 pages)**
+
+#### **Why is this an interesting topic?**
+We decided to compare and contrast the degrees awarded by demographics in 
+six main Washington State universities, including the University of 
+Washington, Washington State University, Western Washington University, Central Washington University, Eastern Washington University, and the Evergreen State 
+College. Our main focus is to reach across our selected institutions and compare 
+their educational situations and demographics. This topic interested us because
+as students of a Washington university, we are directly influenced by the
+presence or lack of diversity in the environment around us. By examining this
+data, we're given better insight into the reality of diversity in the largest
+schools in Washington, which can be viewed as directly correlating with the 
+future prospects of diversity within these universities, and Washington as a 
+whole. This enables further discourse specifically pertaining to Washington
+university institutions and holding them accountable to maintain or revisit 
+their diversity distributions.
+
+
+#### **What do we already know about this topic?**
+We know that across all Washington universities, diversity rates have increased 
+over the years. Each measurement of a demographic's degree attainment in 
+Washington institutions offer an increasingly diverse ratio of student 
+identities. The University of Washington is seen to hold the highest diversity 
+rates and offers a varied range of STEM majors and non-STEM majors. However,
+there is significantly higher number of White students when compared to any
+other demographic, and a particularly smaller number of  Black and Native 
+American students across these Washington colleges.
+
+
+#### **Three questions:**
+ 
+
+#### **1. What do the statewide STEM and non-STEM degree trends for undergraduates and graduates indicate?**
+
+The STEM degrees for both the undergraduate and graduates seem to be trending 
+slowly upwards without much fluctuation across time, while that of graduate 
+non-STEM seems to have only just barely trended upwards between 2007 and 2012, 
+before stagnating. For the undergraduate non-STEMs, there is a significantly
+larger amount of fluctuation compared to the other three, with a series of 
+increases and decreases that seemed to have now settled into a downwards trend.
+This data gives us indication of the current and recent situation of trends 
+and differences in STEM and non-STEM degrees, where there is a relatively stable
+pattern where STEM increases steadily while non-STEM either experiences great 
+fluctuation, or smaller fluctuation and then stagnation.
+
+#### **2. What are the trends in STEM and non-STEM degrees for undergraduate and graduate degrees of colleges in Washington State?**
+
+For the STEM degrees granted, there is a steady upwards growth for UW and WSU, 
+while the other universities seem to be mostly stagnating, with some minimal 
+growth. In those non-STEM degrees, UW, WSU, CWU, and EWU all experiences some
+level of turbulence in growing and lowering degree values across the past few
+years, while the other two moved slowly downwards. Now, nearly all of them have
+a downwards trend apart from CWU.
+
+This displays that while STEM degrees did not necessarily indicate a pattern of
+gauranteed growth, it also rarely ever trended downwards, whereas most of the 
+non-STEM degrees did seem to share some level of stagnation, turbulence, and an
+eventual downwards trend, pointing towards a possible growth in the student
+desire to pursue STEM degrees, while also clearly narrating how non-STEM degrees
+experience less stability of pattern and growth. This potentially reflects
+social or student opinion towards the need for STEM degrees, alternatively, 
+reflects the potential and slowly growing degree of greater importance 
+universities themselves place into them.
+
+#### **3. Is there a pattern in race and ethnicity distribution across STEM and non-STEM degrees?**
+We've seen a definite pattern of these trends within the University of 
+Washington. In some colleges, there seems to be a fluctuating number of majors 
+by race and ethnicity, and while certainty not the direct and only influence on 
+this trend, it seems likely that there is a correlation between race/ethnicity 
+and the distribution of such races across the percentages of STEM and non-STEM students in each demographic. Especially in the undergrad degrees, we are able
+to witness a higher level of AAPI participation in STEM degrees compared to 
+the actual ratio of the AAPI student population to other ethnicity groups. There
+also seems to be a gradually higher trend in STEM degrees for  all 
+race/ethnicity groups, while White students experienced a more drastic downwards 
+trend. This shows a gradually changing environment of improving diversity, especially 
+in undergraduate STEM degrees.
+
+#### **Why should you care about and read our report?**
+Promoting a diverse sphere of students across education is of great importance,
+and by gaining further education on this topic, people are made more aware of
+the existing gaps in progress that still need to be addressed. Greater 
+diversity creates a more vibrant community of ideas and opinions, uniting 
+people from different backgrounds and identities into a level of collaboration
+that is severely lacking in environments that lack such diversity. It also
+promotes greater inclusion and awareness in the struggle of minorities.
+
+Since our report establishes a study of data that can be used to hold
+Washington's educational institutions accountable for a lack of diversity across
+STEM and non-STEM majors throughout their student populations, our report 
+is a tool to better promote this diversity where it is lacking.
+
+### **Explain your Data (3 pages):**
+
+#### **Why do you use these datasets?**
+We chose these datasets because they contained very comprehensive information
+from six of Washington's largest or most well-known universities, creating an
+opportunity for us to evaluate data trends that we could use in order to paint
+a more clear imagine of the state of education within Washington higher 
+education. That the data began in 2007 and ended in 2021 created a large time
+frame for us to examine historical trends, and that both datasets shared the 
+school year and university name variables, it was easy to figure out how to
+merge the two datasets.
+
+We chose the three other University of Washington-specific datasets: 
+"Enrollment by Race & Ethnicity" between the three campuses respectively, to be 
+able to accurately calculate the total number of students in order to check if 
+the total number exceeds the total number by race in the main two PCEES datasets.
+
+#### **Where do your datasets originate from?**
+This data was obtained from data.wa.gov, an open data portal for general purpose
+for the State of Washington. Specifically, these datasets were found under the 
+Education Research & Data Center's Statewide Public Four-Year Dashboard. This 
+dashboard displays "several accountability measures such as graduation rates 
+and the time it takes to complete a bachelor's degree for each institution and statewide."
+
+The three University of Washington campus datasets we found from datausa.io,
+a massive database of public US Government data. 
+
+#### **Who collected data?**
+This data was sourced from the Office of Financial Management’s Public 
+Centralized Higher Education Enrollment System (PCHEES) that includes 
+enrollment and completion data from 2007-08 forward.
+
+The data the OFM collected contains data from six public universities: 
+University of Washington, Washington State University, Western Washington 
+University, Central Washington University, Eastern Washington University, and 
+the Evergreen State College.
+
+The data collected from the three UW datasets are sourced from the Integrated Postsecondary Education Data System (IPEDS), a system of related surveys that 
+are conducted annually by the National Center for Education Statistics as part
+of a branch of the United States Department of Education. 
+
+#### **The data usage permissions: are the data freely available for everyone?** 
+Yes, this data is freely available for everyone, as it is a Washington branch of
+a governmental open data website. The datasets are easily accessible through the
+website, which also contains accessibility options for those with disabilities
+who might otherwise have more trouble accessing the data.
+
+Yes, the datasets on datausa.io are all freely accessible.
+
+#### **Are there certain restrictions on who can access data, or for what purpose it can be used (e.g. non-commercial only)?**
+There seem to be no specific restrictions on who can access the data. In fact, 
+the main website at data.gov states that it intends to provide access to data 
+published by federal agencies specifically to provide access to open government
+data to the public. 
+
+It also mentions its intend for its data to be used to achieve agency missions, 
+drive innovation, fuel economic activity, and uphold the ideals of an open and
+transparent government. 
+
+For the data taken from datausa.io, there do not appear to be limitations on
+who can access the data or for what purpose they're accessing it. 
+
+#### **What are the datasets about?** 
+
+The specific datasets we used were the PCHEES Dashboard's "Degrees by Major"
+dataset, as well as the PCHEES Dashboard's "Degrees Awarded" dataset.
+
+The Degrees by Major dataset focuses on the total number of degrees awarded in 
+various major and departmental classifications, including those that are STEM or
+non-STEM, the names of the specific majors such as Education or Counseling 
+Psychology, whether or not those degrees are high demand or not, whether it was 
+awarded for undergraduate or graduate, etc. These are classified by the specific 
+college they fall under, from the previously stated list of six.
+
+Within the Degrees Awarded dataset, it focuses on the same six colleges, 
+specifying the number of degrees awarded per student identity classifications, 
+including their age, graduate/undergrad status, race or ethnicity, etc.
+
+The datasets from datausa.io are on the graduation rate based on race and sex 
+for the three respective University of Washington campuses, which cover the race
+and sex distribution across UW graduates from 2012 to 2021. 
+
+#### **What is the population and what is the sample?**
+The population of the dataset is assumed to be the student populations of these
+six colleges from the 2007-2008 to 2020-2021 school years, however no concrete
+number of total students this datset was collected from is shown. As these 
+datasets are meant to be fully representative of the degrees by category of
+these colleges, it can be assumed that the sample roughly reflects that of the
+entire student population.
+
+The population of the datasets are individually the full population of undergrad
+and graduate students in the specific Seattle, Bothell, and Tacoma campuses, 
+while all together they represent the full student population across all of the 
+University of Washington campuses from 2012 to 2021.
+
+#### **Discuss any data quality issues you encountered:**
+We have determined that this data is of high reliability because it was 
+collected and overseen by the Office of Financial Management, a reputable 
+Washington State government organization, and the a subsection of the US 
+Department of Education, a reputable federal government department. 
+
+Within the datasets themselves, data quality appears relatively decent: an issue 
+encountered was that some students had certain details of their demographics 
+redacted, unknown, or unreleased. This is perhaps due to the universities 
+allowing their students to self-report their identities, or simply hiding their
+demographic data, so the datasets are not entirely representative of every 
+single student. The universities other than UW and WSU had several issues with 
+redacted data in terms of their student race/ethnicity statistics, especially in 
+terms of the race/ethnicity of any group apart from White or unknown categories.
+
+These created a situation of slightly skewed data, but not to a point where we 
+deemed that the data sets as a whole would be unusable or generally inaccurate.
+
+We found no foreseeable ethical issues with use of this data.
+
+
+### **Description of your final dataset:**
+
+
+#### **What do rows represent in your final dataset?**
+Each row represents the statistics of each school year's first year in terms of
+the various demographic groups, number of degreens, percentages, etc.
+
+#### **How many observations do you have?**
+We have an observation per year, across the six universities.
+
+#### **What are the relevant variables and how are they coded?**
+Relevant variables and how they are coded are explored in the data 
+documentation. 
+
+#### **Are there any missings, non-plausible values, or other quality issues in the relevant variables? How many?**
+Any quality issues or missing variables were explored in the sections above: 
+in particular, "How did you select your sample?" and "Discuss any data quality 
+issues you encountered:".
+
+### **Discuss your methods (2-3 pages). What exactly did you do? This should cover all the data processing choices you did**
+
+#### **Which variables did you include, why?**
+Variables are within the data documentation file.
+
+#### **How did you process your data, why?**
+We initially changed the data sets into .CSV, imported it into rmarkdown, and 
+filtered for race and ethnicity in STEM and non-STEM in the identity-oriented
+data set, then for STEM and non-STEM by university in the other in order 
+to get the total amounts. We used used the select function to take out the 
+columns/variables we did not need, and added a year column to display the 
+academic start year instead of showing the year range so the data was easier to 
+represent. Finally, we used the `full_join()` function to compile these two 
+datasets together once they were individually clean. 
+
+For the three UW datasets, we imported them into rstudio, cleaned them 
+individually, and used the `left_join()` function to compile them together. 
+
+
+#### **How did you select your sample?**
+There wasn't enough consistency between the universities with the way they 
+labeled their major or race/ethnicity categories, so instead of broadening the 
+scope and struggling to unite the differences between universities, we chose 
+instead to focus on a broader and more consistent category: STEM or non-STEM, 
+for several of our graphs.
+
+When we compare race and ethnicity data within the University of Washington, we 
+don't include non-resident or alien data from the degrees granted data, because 
+it wasn't represented in the primary two PCHEES datasets. Furthermore, when we 
+represent the UW data, it only spanned from 2012 to 2021, because the race 
+population data did not extend before them, despite the PCHEES data beginning 
+from 2007 and ending in 2021.
+
+All the data for graduates across all six colleges had a significant amount of 
+NA values, so we decided to limit the use of it to the first few basic plots, in
+order to display the data without involving it in more complicated data
+comparisons later one.
+
+We attempted to show the most accurate data by pulling three new 
+datasets for the University of Washington-specific data in order to minimize
+risk of only relying on one source for our two datasets. The other datasets 
+were chosen because, since they are from the same source, the data processing
+is smoother as the variables and data values and functionally similar.
+
+#### **Any technical decisions you did, such as either to remove missings, or replace missing values with another one?**
+
+We removed missing variables.
+
+#### **If you use more complex statistical methods, such as regression, these should also discussed here.**
+
+We did not use any complex statistical methods.   
+
+### **Talk about your results (1-2 pages).**
+
+Results are covered in depth in our story files.
+
+### **Discuss your findings (1-2 pages)**
+
+#### **What do the results tell you regarding of your question you asked in introduction, or about the story line you want to focus on?**
+The results tell us that there is a pretty likely presence of influence, or at
+least a provable *significance* between that of race and the percent 
+concentration of a certain race/ethnicity in STEM and non-STEM degrees. This
+is seem especially in the dramatic amount of AAPI students getting STEM
+undergraduate degrees compared to the actual ratio of AAPI students to the
+other race demographic groups. Furthermore, as we observed a visible growth in 
+students obtaining STEM degrees, and frequent turbulent in non-STEM degree
+data, we're better informed of future, prospective changes, and the historial
+path these two situations have already taken. This feeds back into our
+final and deepest question about the relation between the divide of STEM and
+non-STEM majors, and that of the race/ethnicity ratio divide between these two.
+
+
+#### **What are the limitations–how far do you think you can extend your claims or story?**
+The limitations seem to lie in the fact that we are uncertain how directly we 
+can actually correlate the evidence of our data--at least to a point where we 
+can *confidently* say that x is the direct cause of y, or that a has 
+significantly influenced b, because there are so many other avenues of 
+influence that might alter certain trends of diversity or STEM vs non-STEM
+distribution that we don't know about. I think we can extend our claims and 
+story as far as acknowledging that we've definitaely observed patterns and
+data trends that would make certain conclusions fairly likely.
+
+For the earlier graphs, where we observed the data trends of graduate and 
+undergrad STEM and non-STEM degrees, we certainly found patterns, however
+we didn't have the time or scope in this project to dive deep enough to be able
+to accurately and confidently correlate these trends to the definite influence
+of how the racial/ethnic spectrum of any particular college or time. Instead,
+we were limited into making estimations and assumptions of what *might* have 
+influenced these trends, however awareness of social perception towards the
+helpfulness and applicability of certain STEM vs non-STEM degrees definitely
+helps shape those assumptions.
+
+
+#### **Give directions for future work–what analysis/data you might need to extend your story further?**
+
+The limitations to our topic might end when we reach the capacity of diverse 
+institutions and relate it to all degrees awarded for all the different majors,
+whether STEM or non-STEM. We could also relate it the variable of ages and their
+degree-year awarded. Our story is mainly about the Institutions and 
+STEM/Non-STEM degrees, but we could also expand on the different parts.
+For future work, we could possibly incorporate a variety of more institutions or
+top institution/universities to compare the diversity rates among the 
+different STEM and Non-Stem degrees. For data we could compare their
+rankings on the diverse acceptance rates and the admissions data.
+We could also open up new variables to extend out story on the degrees awarded
+across institutions in relation to demographics to further our story.
+
+
+### **Summary:**
+
+As a diverse student body, and more specifically, a diverse concentration of
+students in any particular degree, is key to the well-rounded and all-inclusive
+functioning of a college-level educational facility, this report seeks to 
+examine ways levels of diversity might be lacking in Washington colleges.
+
+In order to answer the three questions: 
+
+  1. What do the statewide STEM and non-STEM degree trends for undergraduates and graduates indicate?
+  2. What are the trends in STEM and non-STEM degrees for undergraduate and graduate degrees from the individual six colleges in Washington?
+  3. Is there a pattern in race and ethnicity distribution across STEM and non-STEM degrees?
+
+This report sought to examine datasets regarding degrees, STEM and non-STEM 
+major focuses, race/ethnicity diversity across college campuses, and how over
+the recent history of Washington's colleges, what correlations or patterns in
+data trends might indicate for the current environment of diversity and race
+concentration in a primary six of Washington's universities.
+
+The specific datasets used were the PCHEES Dashboard’s “Degrees by Major” 
+dataset, as well as the PCHEES Dashboard’s “Degrees Awarded” dataset. For 
+University of Washington-specific data, we used the "Enrollment by Race & 
+Ethnicity" for the UW's three campuses from datausa.io. All of these datasets 
+are public, free to use, and of very good reliability and decent quality.
+
+Out of these, we selected variables ____ in order to narrow down our sample
+size to STEM and non-STEM degrees, racial/ethnic identity, undergraduate
+or graduate status, and the six Washington universities.
+
+Our findings discover that through undergraduate and graduate experiences, there 
+appears to be a relatively stable pattern where STEM degrees increase steadily 
+while non-STEM degrees either experiences great fluctuation, or smaller 
+fluctuation and then stagnation. When viewing this behind the more specific 
+backdrop of the selected six Washington universities, we see that while STEM 
+degrees did not necessarily indicate guaranteed growth in the obtaining of STEM 
+degrees, it also rarely ever trended downwards. On the other hand, we found that 
+most of the non-STEM degrees did seem to share some level of stagnation for 
+several periods, turbulence, and an eventual downwards trend, pointing towards 
+what we assume to be a possible growth in the student desire to pursue STEM 
+degrees, while also clearly displaying how non-STEM degrees experience less 
+stability of pattern and growth. This can be seen to reflect social or student 
+opinion towards the need for STEM degrees. It might also reflect the potential 
+and slowly growing level of greater importance universities themselves place 
+into them.
+
+We found a definite pattern of trends in race and ethnicity distribution across 
+STEM and non-STEM degrees. Starkly in the undergrad degrees, we are able to 
+witness a higher level of AAPI participation in STEM degrees compared to the 
+actual ratio of the AAPI student population to other ethnicity groups. There 
+also seems to be a gradually higher trend in STEM degrees for all race/ethnicity 
+groups, while White students experienced a more drastic downwards trend. Through 
+these findings, we see a gradually changing environment of improving diversity, 
+especially in undergraduate STEM degrees.
+
+Promoting a diverse sphere of students across education extremely important. By 
+gaining further education on this topic, people are made more aware of the 
+existing gaps in diversity progress that still need to be addressed. Since our 
+report establishes an examination of data that can be used to hold if necessary 
+Washington’s educational institutions accountable for a lack of diversity across 
+STEM and non-STEM majors throughout their student populations, it is a tool to 
+better promote this diversity where it is lacking.
+
+
+By examining this data, we’re given better insight into the reality of diversity 
+in the largest schools in Washington, where White students remain the 
+predominant, and in several cases, the extreme majority among the racial 
+landscape. The lack of such diversity highlighted through our data, especially 
+within the STEM and non-STEM specific focuses, should call these Washington
+educational institutions to reexamine the way at which they welcome and promote 
+diversity on their campuses. This is in particular for those function as the 
+smallest of minorities. This report necessitates further discourse specifically 
+pertaining to holding these universities accountable to revisit their diversity 
+distributions.
+
+
+
